@@ -1,6 +1,10 @@
 pipeline {
   agent any
 
+  environment {
+    KUBECONFIG = '/root/.kube/config'  // Path inside Jenkins container
+  }
+
   stages {
     stage('Clone') {
       steps {
@@ -18,10 +22,14 @@ pipeline {
 
     stage('Deploy to Kubernetes') {
       steps {
-        sh '''
-        kubectl apply -f k8s/deployment.yaml
-        kubectl apply -f k8s/service.yaml
-        '''
+        script {
+          sh '''
+            echo "Deploying to Kubernetes..."
+            kubectl version --client
+            kubectl apply -f k8s/deployment.yaml
+            kubectl apply -f k8s/service.yaml
+          '''
+        }
       }
     }
   }
